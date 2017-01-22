@@ -1,0 +1,50 @@
+<h2>{{!recipe._id?'New':'Edit'}} Recipe</h2>
+<ul class="list-group">
+  <li ng-repeat="t in tlist"  focus="{{$index}}" class="list-group-item ">{{t}}</li>
+</ul>
+<form name="reipeForm" class="form-horizontal" ng-submit="save()">
+  <div class="form-group">
+    <label for="title" class="col-sm-2 control-label">Title:</label>
+    <div class="col-sm-10">
+      <input type="text" ng-model="recipe.title" class="form-control" id="title" />
+    </div>
+  </div>
+  <div class="form-group"><label for="description" class="col-sm-2 control-label">Description:</label>
+    <div class="col-sm-10"><textarea id="description" cols="30" rows="10" class="form-control"
+                                     ng-model="recipe.description"></textarea></div>
+  </div>
+  <div class="form-group"><label for="ingredients" class="col-sm-2 control-label">Ingredients:</label>
+    <div class="col-sm-10">
+      <table class="table table-condensed form-inline" id="ingredients">
+        <tr ng-controller="IngredientsCtrl" ng-repeat="ingre in recipe.ingredients">
+          <td><label for="amount"></label>
+            <input id="amount" type="text" ng-model="ingre.amount" class="form-control"></td>
+          <td><label for="amountUnits"></label>
+            <input id="amountUnits" type="text" ng-model="ingre.amountUnits" class="form-control"></td>
+          <td><label for="ingredientName"></label>
+            <input id="ingredientName" type="text" ng-model="ingre.ingredientName" class="form-control"></td>
+          <td>
+            <button type="button" class="btn  btn-default" ng-click="addIngredient()">
+              <span class="glyphicon glyphicon-plus-sign "></span><span class="sr-only">Add</span>
+            </button>
+            <button type="button" class="btn  btn-default " ng-click="removeIngredient($index)">
+              <span class="glyphicon glyphicon-minus-sign "></span><span class="sr-only">Delete</span>
+            </button>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="form-group"><label for="instructions" class="col-sm-2 control-label">Instructions</label>
+    <div class="col-sm-10">
+      <textarea name="" id="instructions" cols="30" rows="10" class="form-control"
+                ng-model="recipe.instructions"></textarea>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button  class="btn btn-primary">Save</button>
+    <button type="button" class="btn" ng-hide="!recipe._id" ng-click="remove()">Delete</button>
+  </div>
+</form>

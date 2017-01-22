@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="loggery">
+<head>
+  <meta charset="UTF-8">
+  <title>使用Angularjs开发一个抽奖应用</title>
+  <!--<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css"/>-->
+  <style>
+    body {
+      font-size: 13px;
+
+    }
+
+    a:link {
+      text-decoration: none;
+    }
+
+    a:valid {
+      text-decoration: none;
+    }
+
+    #lottery {
+      margin: 0 auto;
+      border: solid 1px #ccc;
+      width: 306px;
+      text-align: center;
+    }
+
+    #lottery ul {
+      list-style-type: none;
+      padding: 0px;
+      margin: 20px 0px;
+      text-align: left;
+    }
+
+    #lottery ul li {
+      border-bottom: dashed 1px #ccc;
+      padding: 5px 0px;
+    }
+
+    #lottery ul li span {
+      float: left;
+      padding-left: 10px;
+    }
+
+    #lottery ul li .span {
+      width: 230px;
+    }
+
+    #lottery button {
+      margin: 50px 0px;
+      width: 100px;
+      height: 100px;
+    }
+
+    #lottery .item {
+      width: 100px;
+      height: 100px;
+      border: solid 1px #ccc;
+      text-align: center;
+      line-height: 100px;
+      float: left;
+    }
+
+    #lottery .active {
+      background-color: #666;
+      border: 1px solid #ccc;
+      color: #fff;
+    }
+
+    #lottery .reset {
+      float: left;
+      padding-left: 10px;
+    }
+
+    #lottery .edit {
+      float: right;
+      padding-right: 10px;
+    }
+
+    #lottery .top {
+      margin-top: 10px;
+
+    }
+
+    #lottery .show {
+      display: block;
+    }
+
+    #lottery .hide {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div id="lottery" ng-controller="ctrl_loggery">
+  <div id="step1">
+    <button ng-click="start()">开始</button>
+  </div>
+  <div id="step2" class="hide">
+    <div ng-repeat="item in items" id="{{item.id}}" class="item" ng-class="{'active':item.status}"></div>
+  </div>
+  <div id="step3" class="hide top"><a href="javascript:void(0)" ng-click="reset()" class="reset">重新开始</a><a href="javascript:void(0)"
+                                                                                              ng-click="edit()"
+                                                                                              class="edit">修改商品</a>
+    <button class="active">{{result}}</button>
+  </div>
+  <div id="step4" class="hide top"><a href="javascript:void(0)" ng-click="return()" class="reset">返回</a>
+    <form ng-submit="add()"><input type="text" ng-model="name" required placeholder="名称"><input type="submit"
+                                                                                                class="btn" value="添加">
+    </form>
+    <ul>
+      <li ng-repeat="item in items"><span>{{item.id}}</span><span class="span">{{item.name}}</span><a
+        href="javascript:void(0)" ng-click="del(item.id)">删除</a></li>
+    </ul>
+  </div>
+</div>
+<script src="bower_components/angular/angular.js"></script>
+<!--<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>-->
+
+<script>
+  angular.module("loggery", [])
+    .controller('ctrl_loggery', ['$scope', '$timeout', function ($scope, $timeout) {
+        $scope.items = [
+          {id: 1, name: "欧洲豪华旅游", status: 0},
+          {id: 2, name: "mac电脑一台", status: 0},
+          {id: 3, name: "iphone6手机", status: 0},
+          {id: 4, name: "时尚山地车", status: 0},
+          {id: 5, name: "高清数字电视", status: 0},
+          {id: 6, name: "500元充值卡", status: 0},
+        ];
+        $scope.result = "奖品为空";
+        $scope.$$ = function (id) {
+          return document.getElementById(id);
+        };
+        $scope.showhide = function (pre, nex) {
+          pre = "step" + pre;
+          nex = "step" + nex;
+          $scope.$$(pre).style.display = "none";
+          $scope.$$(nex).style.display = "block";
+        };
+        //开奖时的方法
+        $scope.start = function () {
+
+
+          $scope.showhide(1, 2);
+          var circle = 5;
+          var selkey = Math.floor(Math.random() * $scope.items.length);
+          var tim = 200;
+          var i = 0;
+          var next = function (key) {
+            $scope.items[key].status = true;
+            if ((key - 1) >= 0) {
+              $scope.items[key - 1].status = false;
+            }
+            if (key == 0) {
+              $scope.items[$scope.items.length - 1].status = false;
+            }
+            var timer = $timeout(function () {
+              tim = tim + ((i<$scope.items.length*circle/2)?-13:15);
+              i++;
+              console.log(tim)
+              if (circle <= 0 && selkey == key) {
+                $scope.showhide(2, 3);
+                $scope.result = $scope.items[key].name;
+                return;
+              }
+              if ($scope.items.length == key + 1) {
+                circle--;
+              }
+              if ($scope.items[key + 1]) {
+                next(key + 1)
+              } else {
+                next(0)
+              }
+            }, tim);
+          };
+          next(0);
+          $scope.reset = function () {
+            $scope.showhide(3, 1)
+          };
+          $scope.edit = function () {
+            $scope.showhide(3, 4)
+          };
+          $scope.add = function () {
+            var last_id = lastid();
+            $scope.items.push({id: last_id, name: $scope.name, status: 0})
+          };
+          $scope.del = function (id) {
+            angular.forEach($scope.items, function (value, key) {
+              if (id == key) {
+                $scope.items.splice(key, 1);
+              }
+            })
+          };
+          $scope.return = function () {
+            $scope.showhide(4, 3)
+          };
+          function lastid() {
+            var id = 0;
+            angular.forEach($scope.items, function (value, key) {
+
+              if (id < value.id)
+                id = value.id;
+            });
+            return ++id;
+          }
+        };
+
+      }]
+    )
+</script>
+</body>
+</html>
